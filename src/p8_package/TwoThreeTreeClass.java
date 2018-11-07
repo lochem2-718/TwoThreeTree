@@ -113,7 +113,6 @@ public class TwoThreeTreeClass
         }
     }
 
-    // TODO
     /**
      * Adds item to 2-3 tree using addItemHelper as needed
      *
@@ -124,7 +123,6 @@ public class TwoThreeTreeClass
         addItemHelper( null, root, itemVal );
     }
 
-    // TODO
     /**
      * Helper method searches from top of tree to bottom using divide and
      * conquer strategy to find correct location (node) for new added value;
@@ -142,10 +140,44 @@ public class TwoThreeTreeClass
             , TwoThreeNodeClass localRef
             , int itemVal )
     {
-
+        // recursion doesn't start if at root
+        if( localRef == null )
+        {
+            root = new TwoThreeNodeClass( itemVal );
+        }
+        // breaks recursion when localRef children are null
+        if( localRef.leftChildRef == null || localRef.rightChildRef == null )
+        {
+            addAndOrganizeData( parRef, itemVal );
+        }
+        else if( localRef.numItems == ONE_DATA_ITEM )
+        {
+            if( itemVal < localRef.centerData )
+            {
+                addItemHelper( null, localRef.leftChildRef, itemVal );
+            }
+            else
+            {
+                addItemHelper( null, localRef.rightChildRef, itemVal );
+            }
+        }
+        else if( localRef.numItems == TWO_DATA_ITEM )
+        {
+            if( itemVal < localRef.leftData )
+            {
+                addItemHelper( null, localRef.leftChildRef, itemVal );
+            }
+            else if( itemVal > localRef.rightData )
+            {
+                addItemHelper( null, localRef.rightChildRef, itemVal );
+            }
+            else
+            {
+                addItemHelper( null, localRef.centerChildRef, itemVal );
+            }
+        }
     }
 
-    // TODO
     /**
      * Method is called when addItemHelper arrives at the bottom of the 2-3
      * search tree (i.e., all node's children are null);
@@ -161,10 +193,42 @@ public class TwoThreeTreeClass
     private void addAndOrganizeData( TwoThreeNodeClass localRef
             , int itemVal )
     {
+        if( localRef.numItems == ONE_DATA_ITEM )
+        {
+            if( itemVal < localRef.centerData )
+            {
+                localRef.rightData = localRef.centerData;
+                localRef.leftData = itemVal;
+            }
+            else
+            {
+                localRef.leftData = localRef.centerData;
+                localRef.rightData = itemVal;
+            }
+            localRef.centerData = 0;
+        }
+        else // holds two data points
+        {
+            if( itemVal < localRef.leftData )
+            {
+                localRef.centerData = localRef.leftData;
+                localRef.leftData = itemVal;
+            }
+            else if( itemVal > localRef.rightData )
+            {
+                localRef.centerData = localRef.rightData;
+                localRef.rightData = itemVal;
+            }
+            else // left <= itemVal <= right
+            {
+                localRef.centerData = itemVal;
+            }
+        }
 
+        localRef.numItems++;
+        fixUpInsert( localRef );
     }
 
-    // TODO
     /**
      * Method used to fix tree any time a three-value node has been added to
      * the bottom of the tree; it is always called but decides to act only if
@@ -183,10 +247,88 @@ public class TwoThreeTreeClass
      */
     private void fixUpInsert( TwoThreeNodeClass localRef )
     {
+        TwoThreeNodeClass parentRef;
         // short circuit keeps java from NullPointerException
+        // recursion stops after root
         if( localRef != null && localRef.numItems == THREE_DATA_ITEM )
         {
+            parentRef = localRef.parentRef;
 
+            if( parentRef == null )
+            {
+                root = new TwoThreeNodeClass( localRef.centerData );
+                root.leftChildRef = new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                                           localRef, root );
+                root.rightChildRef = new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                                           localRef, root );
+            }
+            else if( parentRef.numItems == ONE_DATA_ITEM )
+            {
+                if( parentRef.leftChildRef == localRef ) // is left
+                {
+                    parentRef.leftData = localRef.centerData;
+                    parentRef.leftChildRef =
+                            new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.centerChildRef =
+                            new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                }
+                else // is right
+                {
+                    parentRef.rightData = localRef.centerData;
+                    parentRef.rightChildRef =
+                            new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.centerChildRef =
+                            new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                }
+            }
+            else // is two data node
+            {
+                if( parentRef.leftChildRef == localRef ) // is left
+                {
+                    parentRef.centerData = parentRef.leftData;
+                    parentRef.leftData = localRef.centerData;
+                    parentRef.leftChildRef =
+                            new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.auxLeftRef =
+                            new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.auxRightRef = parentRef.centerChildRef;
+                }
+                else if( parentRef.centerChildRef == localRef ) // is center
+                {
+                    parentRef.centerData = localRef.centerData;
+                    parentRef.auxLeftRef =
+                            new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.auxRightRef =
+                            new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                }
+                else // is right
+                {
+                    parentRef.centerData = parentRef.rightData;
+                    parentRef.leftData = localRef.centerData;
+                    parentRef.auxRightRef =
+                            new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.rightChildRef =
+                            new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                                   localRef, parentRef );
+                    parentRef.auxLeftRef = parentRef.centerChildRef;
+                }
+
+                parentRef.centerChildRef = null;
+            }
+
+            parentRef.numItems++;
+
+            // goes higher in tree
+            fixUpInsert( localRef.parentRef );
         }
 
     }
