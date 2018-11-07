@@ -393,7 +393,6 @@ public class TwoThreeTreeClass
         System.gc();
     }
 
-    // TODO
     /**
      * Public method called by user to display data in order
      *
@@ -401,10 +400,11 @@ public class TwoThreeTreeClass
      */
     public String inOrderTraversal()
     {
-
+        outputString = "";
+        inOrderTraversalHelper( root );
+        return outputString;
     }
 
-    // TODO
     /**
      * Helper method conducts in order traversal with 2-3 tree
      * <p>
@@ -416,7 +416,21 @@ public class TwoThreeTreeClass
      */
     public void inOrderTraversalHelper( TwoThreeNodeClass localRef )
     {
-        // is node null?
+        if( localRef != null )
+        {
+            inOrderTraversalHelper( localRef.leftChildRef );
+            if( localRef.numItems == ONE_DATA_ITEM )
+            {
+                outputString += ( "C" + localRef.centerData + " " );
+            }
+            else if( localRef.numItems == TWO_DATA_ITEM )
+            {
+                outputString += ( "L" + localRef.leftChildRef + " " );
+                inOrderTraversalHelper( localRef.centerChildRef );
+                outputString += ( "R" + localRef.rightChildRef + " " );
+            }
+            inOrderTraversalHelper( localRef.rightChildRef );
+        }
     }
 
     /**
