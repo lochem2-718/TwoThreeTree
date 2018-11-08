@@ -146,9 +146,9 @@ public class TwoThreeTreeClass
             root = new TwoThreeNodeClass( itemVal );
         }
         // breaks recursion when localRef children are null
-        if( localRef.leftChildRef == null || localRef.rightChildRef == null )
+        else if( localRef.leftChildRef == null || localRef.rightChildRef == null )
         {
-            addAndOrganizeData( parRef, itemVal );
+            addAndOrganizeData( localRef, itemVal );
         }
         else if( localRef.numItems == ONE_DATA_ITEM )
         {
@@ -256,11 +256,14 @@ public class TwoThreeTreeClass
 
             if( parentRef == null )
             {
-                root = new TwoThreeNodeClass( localRef.centerData );
-                root.leftChildRef = new TwoThreeNodeClass( LEFT_CHILD_SELECT,
-                                                           localRef, root );
-                root.rightChildRef = new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
-                                                           localRef, root );
+                parentRef = new TwoThreeNodeClass( localRef.centerData );
+                parentRef.leftChildRef =
+                        new TwoThreeNodeClass( LEFT_CHILD_SELECT,
+                                               localRef, parentRef );
+                parentRef.rightChildRef =
+                        new TwoThreeNodeClass( RIGHT_CHILD_SELECT,
+                                               localRef, parentRef );
+                root = parentRef;
             }
             else if( parentRef.numItems == ONE_DATA_ITEM )
             {
@@ -284,6 +287,8 @@ public class TwoThreeTreeClass
                             new TwoThreeNodeClass( LEFT_CHILD_SELECT,
                                                    localRef, parentRef );
                 }
+                parentRef.centerData = 0;
+                parentRef.numItems++;
             }
             else // is two data node
             {
@@ -323,9 +328,8 @@ public class TwoThreeTreeClass
                 }
 
                 parentRef.centerChildRef = null;
+                parentRef.numItems++;
             }
-
-            parentRef.numItems++;
 
             // goes higher in tree
             fixUpInsert( localRef.parentRef );
@@ -414,7 +418,7 @@ public class TwoThreeTreeClass
      * @param localRef TwoThreeNodeClass reference to current location at any
      *                 given point in the recursion process search
      */
-    public void inOrderTraversalHelper( TwoThreeNodeClass localRef )
+    private void inOrderTraversalHelper( TwoThreeNodeClass localRef )
     {
         if( localRef != null )
         {
@@ -425,9 +429,9 @@ public class TwoThreeTreeClass
             }
             else if( localRef.numItems == TWO_DATA_ITEM )
             {
-                outputString += ( "L" + localRef.leftChildRef + " " );
+                outputString += ( "L" + localRef.leftData + " " );
                 inOrderTraversalHelper( localRef.centerChildRef );
-                outputString += ( "R" + localRef.rightChildRef + " " );
+                outputString += ( "R" + localRef.rightData + " " );
             }
             inOrderTraversalHelper( localRef.rightChildRef );
         }
